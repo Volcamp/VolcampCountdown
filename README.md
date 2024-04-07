@@ -13,8 +13,8 @@ You need :
 - 1 TM1637 7 Segment 4 bits anonde
 - 5 press buttons
 - 5 10kΩ resistors
-- 5 220 Ω resitors
-- 3 200Ω resistors
+- 5 1kΩ resitors
+- 3 220Ω resistors
 - 5 10nF capacitors
 - 1 green LED
 - 1 orange LED
