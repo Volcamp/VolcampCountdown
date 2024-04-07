@@ -39,7 +39,7 @@ First for all 3 LEDs
 
 [Gerber file for LED](/gerber%20files//ledVolcampCountdown.zip)
 
-another for the 5 buttons
+Another one for the 5 buttons
 
 ![LED](/img/gerberBtn.png)
 
@@ -55,5 +55,5 @@ The start button launches the countdown (45 minutes by default) with green LED l
 
 Reset buttom rollbacks countdown to origin value.
 
-Position, up abd down buttons can be used to change started value.
+Position, up and down buttons can be used to change started value.
 
