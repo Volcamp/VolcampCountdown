@@ -12,9 +12,9 @@ You need :
 - an Arduino Nano
 - 1 TM1637 7 Segment 4 bits anonde
 - 5 press buttons
-- 5 10kΩ resistors
-- 5 1kΩ resitors
-- 3 220Ω resistors
+- 5 10 kΩ resistors (Brown - Black - Orange + Gold)
+- 5 1 kΩ resitors (Brown - Black - Brown + Gold)
+- 3 220 Ω resistors (Red - Red - Brown + Gold)
 - 5 10nF capacitors
 - 1 green LED
 - 1 orange LED
