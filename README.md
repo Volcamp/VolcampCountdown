@@ -39,6 +39,7 @@ First for all 3 DELs
 
 [Gerber file for DEL](/gerber%20files//ledVolcampCountdown.zip)
 
+another for the 5 buttons
 
 ![DEL](/img/gerberBtn.png)
 
@@ -47,7 +48,7 @@ First for all 3 DELs
 
 # Usage
 
-Start button launch countdown (45 minutes by default) with green DEL lights up.
+The start button launches the countdown (45 minutes by default) with green DEL lights up.
 - When 66% was done, the orange DEL lights up (15 min remaining by default).
 - When 11% was done, the red DEL lights up (5 min remaining by default).
 - When countdon was finished, the countdown and the red DEL flash.
