@@ -18,8 +18,10 @@ const unsigned int buzz_freq = 500;
 // Global Variables
 long int count_time;                // 1000ms in 1sec, 60secs in 1min, 60mins in 1hr. So, 1000x60x60 = 3600000ms = 1hr
 long int reset_value;               // copy this value into count_time when the button is pressed next time
+long int decrease_time;
 long int greenled_time;
 long int redled_time;
+long int RedLightOnEnded;
 unsigned long NewTime = 0;
 unsigned long current_time = 0;
 unsigned long previous_time = 0;
@@ -57,12 +59,12 @@ void setup(){
   // If reset button changes from HIGH to LOW then REBOOT the Arduino
   attachInterrupt(digitalPinToInterrupt(reset_button), resetCountdown, FALLING);   
 
-  display.showNumberDec(left_value, true, 2, 0);
-  display.showNumberDec(right_value, true, 2, 2);
+  display.showNumberDecEx(left_value, 0b11100000, true, 2, 0);
+  display.showNumberDecEx(right_value, 0b11100000, true, 2, 2);
 
   count_time = left_value*60 + right_value;       
   reset_value = count_time; 
-
+  decrease_time = 0;
   allLEDon();
 }                                                                               
 
@@ -77,9 +79,7 @@ void loop(){
 
     delay(250);
     start_pause = 0;
-    digitalWrite(greenled_pin,HIGH);
-    digitalWrite(yellowled_pin,LOW); 
-    digitalWrite(redled_pin,LOW);     
+
     greenled_time = count_time/3;
     redled_time = greenled_time/3;
             
@@ -88,7 +88,7 @@ void loop(){
       count_time = reset_value;
     }
     
-    countDown();
+    nextTime();
   }
 
   if(digitalRead(position_button) == 0){
@@ -104,17 +104,21 @@ void loop(){
       if(digitalRead(increase_button) == 0){ 
         if(left_value<99){
           left_value++;
+        } else {
+          left_value=0;
         }
-        delay(150);
+        delay(100);
       }
       
       if(digitalRead(decrease_button) == 0){  
         if (left_value>0){
           left_value--;
+        } else {
+          left_value=99;
         }
-        delay(150);
+        delay(100);
       }
-      display.showNumberDec(left_value, false, 2, 0);
+      display.showNumberDecEx(left_value, 0b11100000, false, 2, 0);
     } 
     
     display.clear();
@@ -125,16 +129,20 @@ void loop(){
       if(digitalRead(increase_button) == 0){  
          if(right_value<60){
           right_value++;
-         }
+         }else {
+          right_value=0;
+        }
         delay(150);
       }
       if(digitalRead(decrease_button) == 0){  
         if (right_value>0){
           right_value--;
+        }else {
+          right_value=60;
         }
         delay(150);
       }
-      display.showNumberDec(right_value, false, 2, 2);
+      display.showNumberDecEx(right_value, 0b11100000, false, 2, 2);
     }
 
     display.clear();
@@ -144,9 +152,11 @@ void loop(){
   }
 }
 
-void countDown(){
+void nextTime(){
   delay(250);
-  while(count_time > 0 && start_pause == 0){
+
+  // CountDown
+  while(count_time > 0 && start_pause == 0 && decrease_time == 0){
     current_time = millis();
             
     if(current_time - previous_time >= 1000){          // Update the display after every one second
@@ -155,8 +165,7 @@ void countDown(){
       seconds = (NewTime % 60);                       // To display the countdown in mm:ss format
       minutes = ((NewTime / 60) % 60 );               //separate CountTime in two parts
     
-      display.showNumberDecEx(seconds, 0, true, 2, 2); // Display the seconds in the last two places
-    
+      display.showNumberDecEx(seconds, 0b11100000, true, 2, 2); // Display the seconds in the last two places
       display.showNumberDecEx(minutes, 0b11100000, true, 2, 0); // Display the minutes in the first two places, with colon
 
       count_time = NewTime;                  // Update the time remaining
@@ -173,27 +182,49 @@ void countDown(){
         digitalWrite(yellowled_pin,LOW);
         digitalWrite(redled_pin,HIGH);
       }
+    } else {
+        digitalWrite(greenled_pin,HIGH);
+        digitalWrite(yellowled_pin,LOW);
+        digitalWrite(redled_pin,LOW);
     }
   } 
   
+  // CountUp after Touch-down
   if(count_time == 0) {
     // Count down is completed, now make the display OFF
-    delay(200);
-    start_pause = 0;
-    Num = 0;
-    for(int i = 0; i < 100; i++){
-      display.showNumberDec(0, true);
-      digitalWrite(redled_pin,HIGH);    
-      delay(300);
-      display.clear();
-      digitalWrite(redled_pin,LOW);    
-      delay(300);
+    decrease_time = 1;
+    RedLightOnEnded = 0;
+    digitalWrite(greenled_pin,LOW);
+    digitalWrite(yellowled_pin,LOW);
+    while(start_pause == 0){
+      current_time = millis();
+              
+      if(current_time - previous_time >= 1000){          // Update the display after every one second
+        NewTime = count_time + 1;                       // Calculate the time remaining 
+      
+        seconds = (NewTime % 60);                       // To display the countdown in mm:ss format
+        minutes = ((NewTime / 60) % 60 );               //separate CountTime in two parts
+      
+        display.showNumberDecEx(seconds, 0b11100000, true, 2, 2); // Display the seconds in the last two places
+        display.showNumberDecEx(minutes, 0b11100000, true, 2, 0); // Display the minutes in the first two places, with colon
+
+        count_time = NewTime;                  // Update the time remaining
+        previous_time = current_time;          // For one second time interval
+
+        left_value = minutes;
+        right_value = seconds;
+        if(RedLightOnEnded == 0) {
+          digitalWrite(redled_pin,HIGH);    
+          RedLightOnEnded = 1;
+        }else {
+          digitalWrite(redled_pin,LOW);    
+          RedLightOnEnded = 0;
+        }
+      }    
     }
-    display.showNumberDec(0, true);
-    digitalWrite(redled_pin,HIGH);  
   } else {
     // Display the time stored when the Pause(Start) button is pressed
-    display.showNumberDecEx(seconds, 0, true, 2, 2); 
+    display.showNumberDecEx(seconds, 0b11100000, true, 2, 2); 
     display.showNumberDecEx(minutes, 0b11100000, true, 2, 0); 
     start_pause = 0;
     delay(100);
